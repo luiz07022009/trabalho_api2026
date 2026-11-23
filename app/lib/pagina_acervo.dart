@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:material_ui/material_ui.dart';
 
 import 'acervo_api.dart';
@@ -16,6 +18,7 @@ class PaginaAcervo extends StatefulWidget {
 class _PaginaAcervoState extends State<PaginaAcervo> {
   final _busca = TextEditingController();
   late Future<List<Livro>> _carga;
+  Timer? _atrasoBusca;
 
   @override
   void initState() {
@@ -25,6 +28,7 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
 
   @override
   void dispose() {
+    _atrasoBusca?.cancel();
     _busca.dispose();
     super.dispose();
   }
@@ -33,6 +37,11 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
     setState(() {
       _carga = widget.api.listar(busca: _busca.text);
     });
+  }
+
+  void _buscarAoDigitar(String _) {
+    _atrasoBusca?.cancel();
+    _atrasoBusca = Timer(const Duration(milliseconds: 300), _recarregar);
   }
 
   Future<void> _abrirFormulario([Livro? livro]) async {
@@ -77,7 +86,7 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
                 child: Text(
-                  'Biblioteca da turma. A lista vem de GET ${widget.api.baseUrl}/livros.',
+                  'Consulte, cadastre e acompanhe os livros da biblioteca.',
                   style: tema.textTheme.bodyMedium,
                 ),
               ),
@@ -86,16 +95,26 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
                 child: TextField(
                   controller: _busca,
                   textInputAction: TextInputAction.search,
+                  onChanged: _buscarAoDigitar,
                   onSubmitted: (_) => _recarregar(),
                   decoration: InputDecoration(
                     hintText: 'Buscar por título ou autor',
                     prefixIcon: const Icon(Icons.search),
                     border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      tooltip: 'Buscar',
-                      onPressed: _recarregar,
-                      icon: const Icon(Icons.arrow_forward),
-                    ),
+                    suffixIcon: _busca.text.isEmpty
+                        ? IconButton(
+                            tooltip: 'Buscar',
+                            onPressed: _recarregar,
+                            icon: const Icon(Icons.arrow_forward),
+                          )
+                        : IconButton(
+                            tooltip: 'Limpar busca',
+                            onPressed: () {
+                              _busca.clear();
+                              _recarregar();
+                            },
+                            icon: const Icon(Icons.close),
+                          ),
                   ),
                 ),
               ),
@@ -119,7 +138,9 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
 
                     final livros = snapshot.data ?? const <Livro>[];
                     if (livros.isEmpty) {
-                      return const _EstadoVazio();
+                      return _EstadoVazio(
+                        buscaAtiva: _busca.text.trim().isNotEmpty,
+                      );
                     }
 
                     return ListView.separated(
@@ -205,14 +226,21 @@ class _CartaoLivro extends StatelessWidget {
 }
 
 class _EstadoVazio extends StatelessWidget {
-  const _EstadoVazio();
+  const _EstadoVazio({required this.buscaAtiva});
+
+  final bool buscaAtiva;
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(32),
-        child: Text('Nenhum livro encontrado.'),
+        padding: const EdgeInsets.all(32),
+        child: Text(
+          buscaAtiva
+              ? 'Nenhum livro corresponde à busca. Tente outro título ou autor.'
+              : 'O acervo ainda está vazio. Cadastre o primeiro livro.',
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

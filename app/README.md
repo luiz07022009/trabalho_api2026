@@ -1,17 +1,25 @@
-# acervo
+# Acervo — aplicativo Flutter
 
-A new Flutter project.
+Aplicativo para consultar e manter o catálogo de livros servido pela API deste repositório.
 
-## Getting Started
+## Executar
 
-This project is a starting point for a Flutter application.
+1. Inicie a API na pasta `../api` com `npm start`.
+2. Na pasta `app`, execute `flutter pub get`.
+3. Inicie no navegador com `flutter run -d chrome`.
 
-A few resources to get you started if this is your first Flutter project:
+Por padrão, o aplicativo acessa `http://127.0.0.1:3000`. Para configurar outro endereço, use:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```sh
+flutter run -d chrome --dart-define=API_BASE_URL=http://127.0.0.1:3000
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+No emulador Android, use `http://10.0.2.2:3000` para acessar a API executada na máquina.
+
+## Funcionalidades
+
+- Lista os livros e permite buscar por título ou autor enquanto você digita.
+- Cadastra livros com título, autor e ano.
+- Edita os dados e a situação de empréstimo de um livro.
+- Remove livros com confirmação.
+- Mostra estados vazios, erros de conexão e uma ação para tentar carregar novamente.

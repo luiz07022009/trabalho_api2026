@@ -4,6 +4,8 @@ Aplicativo para consultar e manter o catálogo de livros servido pela API deste 
 
 ## Executar
 
+Requer Flutter com Dart 3.12.0 ou superior.
+
 1. Inicie a API na pasta `../api` com `npm start`.
 2. Na pasta `app`, execute `flutter pub get`.
 3. Inicie no navegador com `flutter run -d chrome`.

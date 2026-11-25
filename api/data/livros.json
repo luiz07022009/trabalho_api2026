@@ -56,13 +56,6 @@
     "situacao": "disponivel"
   },
   {
-    "id": "9",
-    "titulo": "O Quinze",
-    "autor": "Rachel de Queiroz",
-    "ano": 1930,
-    "situacao": "disponivel"
-  },
-  {
     "id": "10",
     "titulo": "São Bernardo",
     "autor": "Graciliano Ramos",
@@ -81,13 +74,6 @@
     "titulo": "O Tempo e o Vento",
     "autor": "Erico Verissimo",
     "ano": 1949,
-    "situacao": "disponivel"
-  },
-  {
-    "id": "1795567480663",
-    "titulo": "formatura 2026",
-    "autor": "3F",
-    "ano": 2026,
     "situacao": "disponivel"
   }
 ]

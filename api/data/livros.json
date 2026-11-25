@@ -4,7 +4,7 @@
     "titulo": "Dom Casmurro",
     "autor": "Machado de Assis",
     "ano": 1899,
-    "situacao": "disponivel"
+    "situacao": "emprestado"
   },
   {
     "id": "2",
@@ -25,7 +25,7 @@
     "titulo": "Vidas Secas",
     "autor": "Graciliano Ramos",
     "ano": 1938,
-    "situacao": "emprestado"
+    "situacao": "disponivel"
   },
   {
     "id": "5",
@@ -67,7 +67,7 @@
     "titulo": "São Bernardo",
     "autor": "Graciliano Ramos",
     "ano": 1934,
-    "situacao": "disponivel"
+    "situacao": "emprestado"
   },
   {
     "id": "11",
@@ -81,6 +81,13 @@
     "titulo": "O Tempo e o Vento",
     "autor": "Erico Verissimo",
     "ano": 1949,
+    "situacao": "disponivel"
+  },
+  {
+    "id": "1795567480663",
+    "titulo": "formatura 2026",
+    "autor": "3F",
+    "ano": 2026,
     "situacao": "disponivel"
   }
 ]

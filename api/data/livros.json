@@ -19,5 +19,68 @@
     "autor": "Jorge Amado",
     "ano": 1937,
     "situacao": "disponivel"
+  },
+  {
+    "id": "4",
+    "titulo": "Vidas Secas",
+    "autor": "Graciliano Ramos",
+    "ano": 1938,
+    "situacao": "emprestado"
+  },
+  {
+    "id": "5",
+    "titulo": "Grande Sertão: Veredas",
+    "autor": "Guimarães Rosa",
+    "ano": 1956,
+    "situacao": "disponivel"
+  },
+  {
+    "id": "6",
+    "titulo": "A Hora da Estrela",
+    "autor": "Clarice Lispector",
+    "ano": 1977,
+    "situacao": "disponivel"
+  },
+  {
+    "id": "7",
+    "titulo": "Macunaíma",
+    "autor": "Mário de Andrade",
+    "ano": 1928,
+    "situacao": "emprestado"
+  },
+  {
+    "id": "8",
+    "titulo": "Memórias Póstumas de Brás Cubas",
+    "autor": "Machado de Assis",
+    "ano": 1881,
+    "situacao": "disponivel"
+  },
+  {
+    "id": "9",
+    "titulo": "O Quinze",
+    "autor": "Rachel de Queiroz",
+    "ano": 1930,
+    "situacao": "disponivel"
+  },
+  {
+    "id": "10",
+    "titulo": "São Bernardo",
+    "autor": "Graciliano Ramos",
+    "ano": 1934,
+    "situacao": "disponivel"
+  },
+  {
+    "id": "11",
+    "titulo": "Gabriela, Cravo e Canela",
+    "autor": "Jorge Amado",
+    "ano": 1958,
+    "situacao": "emprestado"
+  },
+  {
+    "id": "12",
+    "titulo": "O Tempo e o Vento",
+    "autor": "Erico Verissimo",
+    "ano": 1949,
+    "situacao": "disponivel"
   }
 ]

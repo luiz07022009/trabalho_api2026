@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'acervo_api.dart';
+import 'capa_livro.dart';
 import 'livro.dart';
 
 class PaginaLivro extends StatefulWidget {
@@ -31,6 +32,11 @@ class _PaginaLivroState extends State<PaginaLivro> {
     _autor = TextEditingController(text: livro?.autor ?? '');
     _ano = TextEditingController(text: livro == null ? '' : '${livro.ano}');
     _situacao = livro?.situacao ?? 'disponivel';
+    _titulo.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -137,6 +143,22 @@ class _PaginaLivroState extends State<PaginaLivro> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
               children: [
+                Center(
+                  child: CapaLivro(
+                    titulo: _titulo.text,
+                    largura: 92,
+                    altura: 128,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  widget.editando
+                      ? 'A capa muda com a primeira letra do título.'
+                      : 'Preencha a ficha. O livro entra na estante como disponível.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _titulo,
                   textInputAction: TextInputAction.next,

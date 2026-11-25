@@ -50,7 +50,40 @@ class AcervoApp extends StatelessWidget {
             backgroundColor: lombada,
             foregroundColor: Colors.white,
             minimumSize: const Size.fromHeight(48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
           ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFFFFFDF8),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFE4D8C8)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFE4D8C8)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: lombada, width: 1.6),
+          ),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: const Color(0xFFFFFDF8),
+          selectedColor: lombada,
+          labelStyle: const TextStyle(color: tinta),
+          secondaryLabelStyle: const TextStyle(color: Colors.white),
+          side: const BorderSide(color: Color(0xFFE4D8C8)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: lombada,
+          foregroundColor: Colors.white,
         ),
       ),
       home: PaginaAcervo(api: api ?? AcervoApi()),

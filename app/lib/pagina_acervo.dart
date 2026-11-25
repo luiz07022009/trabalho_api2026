@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 
 import 'acervo_api.dart';
+import 'capa_livro.dart';
 import 'livro.dart';
 import 'pagina_livro.dart';
 
@@ -19,6 +20,7 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
   final _busca = TextEditingController();
   late Future<List<Livro>> _carga;
   Timer? _atrasoBusca;
+  String _filtro = 'todos';
 
   @override
   void initState() {
@@ -40,6 +42,7 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
   }
 
   void _buscarAoDigitar(String _) {
+    setState(() {});
     _atrasoBusca?.cancel();
     _atrasoBusca = Timer(const Duration(milliseconds: 300), _recarregar);
   }
@@ -56,10 +59,15 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
     }
   }
 
+  List<Livro> _visiveis(List<Livro> livros) {
+    if (_filtro == 'todos') {
+      return livros;
+    }
+    return livros.where((livro) => livro.situacao == _filtro).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tema = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Acervo'),
@@ -79,19 +87,11 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 760),
+          constraints: const BoxConstraints(maxWidth: 860),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                child: Text(
-                  'Consulte, cadastre e acompanhe os livros da biblioteca.',
-                  style: tema.textTheme.bodyMedium,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+                padding: const EdgeInsets.fromLTRB(24, 4, 24, 8),
                 child: TextField(
                   controller: _busca,
                   textInputAction: TextInputAction.search,
@@ -100,7 +100,6 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
                   decoration: InputDecoration(
                     hintText: 'Buscar por título ou autor',
                     prefixIcon: const Icon(Icons.search),
-                    border: const OutlineInputBorder(),
                     suffixIcon: _busca.text.isEmpty
                         ? IconButton(
                             tooltip: 'Buscar',
@@ -137,24 +136,35 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
                     }
 
                     final livros = snapshot.data ?? const <Livro>[];
-                    if (livros.isEmpty) {
-                      return _EstadoVazio(
-                        buscaAtiva: _busca.text.trim().isNotEmpty,
-                      );
-                    }
-
-                    return ListView.separated(
+                    final visiveis = _visiveis(livros);
+                    return ListView(
                       padding: const EdgeInsets.fromLTRB(24, 8, 24, 96),
-                      itemCount: livros.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final livro = livros[index];
-                        return _CartaoLivro(
-                          livro: livro,
-                          aoAbrir: () => _abrirFormulario(livro),
-                        );
-                      },
+                      children: [
+                        _PainelEstante(livros: livros),
+                        const SizedBox(height: 16),
+                        _Filtros(
+                          filtro: _filtro,
+                          aoEscolher: (valor) {
+                            setState(() => _filtro = valor);
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        if (visiveis.isEmpty)
+                          _EstadoVazio(
+                            buscaAtiva: _busca.text.trim().isNotEmpty,
+                            filtroAtivo: _filtro != 'todos',
+                          )
+                        else
+                          ...[
+                            for (var i = 0; i < visiveis.length; i++) ...[
+                              if (i > 0) const SizedBox(height: 12),
+                              _CartaoLivro(
+                                livro: visiveis[i],
+                                aoAbrir: () => _abrirFormulario(visiveis[i]),
+                              ),
+                            ],
+                          ],
+                      ],
                     );
                   },
                 ),
@@ -163,6 +173,167 @@ class _PaginaAcervoState extends State<PaginaAcervo> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _PainelEstante extends StatelessWidget {
+  const _PainelEstante({required this.livros});
+
+  final List<Livro> livros;
+
+  @override
+  Widget build(BuildContext context) {
+    final tema = Theme.of(context);
+    final disponiveis = livros.where((livro) => !livro.emprestado).length;
+    final emprestados = livros.length - disponiveis;
+    final amostra = livros.take(12).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A211C),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'BIBLIOTECA',
+            style: tema.textTheme.labelSmall?.copyWith(
+              color: const Color(0xFFD7C4A8),
+              letterSpacing: 1.6,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Estante da casa',
+            style: tema.textTheme.headlineSmall?.copyWith(
+              color: const Color(0xFFF6F1E7),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Cada lombada é um livro do acervo. Toque no cartão para emprestar, devolver ou editar a ficha.',
+            style: tema.textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFFD7C4A8),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (amostra.isEmpty)
+            const Text(
+              'A prateleira ainda está vazia.',
+              style: TextStyle(color: Color(0xFFD7C4A8)),
+            )
+          else
+            SizedBox(
+              height: 52,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: amostra.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 6),
+                itemBuilder: (context, index) =>
+                    LombadaMini(livro: amostra[index]),
+              ),
+            ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _Metrica(valor: livros.length, rotulo: 'No acervo', icone: Icons.menu_book),
+              const SizedBox(width: 8),
+              _Metrica(
+                valor: disponiveis,
+                rotulo: 'Disponíveis',
+                icone: Icons.check_circle_outline,
+              ),
+              const SizedBox(width: 8),
+              _Metrica(
+                valor: emprestados,
+                rotulo: 'Emprestados',
+                icone: Icons.schedule,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Metrica extends StatelessWidget {
+  const _Metrica({
+    required this.valor,
+    required this.rotulo,
+    required this.icone,
+  });
+
+  final int valor;
+  final String rotulo;
+  final IconData icone;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFF3A2E28),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icone, size: 16, color: const Color(0xFFE7C9A4)),
+            const SizedBox(height: 8),
+            Text(
+              '$valor',
+              style: const TextStyle(
+                color: Color(0xFFF6F1E7),
+                fontFamily: 'Georgia',
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              rotulo,
+              style: const TextStyle(color: Color(0xFFD7C4A8), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Filtros extends StatelessWidget {
+  const _Filtros({required this.filtro, required this.aoEscolher});
+
+  final String filtro;
+  final ValueChanged<String> aoEscolher;
+
+  @override
+  Widget build(BuildContext context) {
+    const opcoes = [
+      ('todos', 'Todos'),
+      ('disponivel', 'Disponíveis'),
+      ('emprestado', 'Emprestados'),
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final opcao in opcoes)
+          ChoiceChip(
+            label: Text(opcao.$2),
+            selected: filtro == opcao.$1,
+            showCheckmark: false,
+            onSelected: (_) => aoEscolher(opcao.$1),
+            labelStyle: TextStyle(
+              color: filtro == opcao.$1 ? Colors.white : const Color(0xFF1F1A17),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -176,31 +347,23 @@ class _CartaoLivro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
-    final cor = livro.emprestado
-        ? const Color(0xFF8A5A12)
-        : const Color(0xFF2F6B4F);
+    final emprestado = livro.emprestado;
+    final cor = emprestado ? const Color(0xFF8A5A12) : const Color(0xFF2F6B4F);
 
     return Material(
       color: const Color(0xFFFFFDF8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: Color(0xFFE4D8C8)),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         onTap: aoAbrir,
         child: Padding(
-          padding: const EdgeInsets.all(18),
+          padding: const EdgeInsets.all(14),
           child: Row(
             children: [
-              Container(
-                width: 44,
-                height: 58,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8C3A2F),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
+              CapaLivro(titulo: livro.titulo),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -208,15 +371,28 @@ class _CartaoLivro extends StatelessWidget {
                   children: [
                     Text(livro.titulo, style: tema.textTheme.titleLarge),
                     const SizedBox(height: 4),
-                    Text('${livro.autor} · ${livro.ano}'),
+                    Text(livro.autor),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _Etiqueta(
+                          texto: '${livro.ano}',
+                          cor: const Color(0xFF5C5148),
+                          fundo: const Color(0xFFF3E6D4),
+                        ),
+                        _Etiqueta(
+                          texto: livro.situacaoLegivel,
+                          cor: cor,
+                          fundo: cor.withValues(alpha: 0.12),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Text(
-                livro.situacaoLegivel,
-                style: tema.textTheme.labelLarge?.copyWith(color: cor),
-              ),
+              const Icon(Icons.chevron_right, color: Color(0xFF8A7B6E)),
             ],
           ),
         ),
@@ -225,23 +401,78 @@ class _CartaoLivro extends StatelessWidget {
   }
 }
 
-class _EstadoVazio extends StatelessWidget {
-  const _EstadoVazio({required this.buscaAtiva});
+class _Etiqueta extends StatelessWidget {
+  const _Etiqueta({
+    required this.texto,
+    required this.cor,
+    required this.fundo,
+  });
 
-  final bool buscaAtiva;
+  final String texto;
+  final Color cor;
+  final Color fundo;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Text(
-          buscaAtiva
-              ? 'Nenhum livro corresponde à busca. Tente outro título ou autor.'
-              : 'O acervo ainda está vazio. Cadastre o primeiro livro.',
-          textAlign: TextAlign.center,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: fundo,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        texto,
+        style: TextStyle(
+          color: cor,
+          fontWeight: FontWeight.w600,
+          fontSize: 12,
         ),
       ),
+    );
+  }
+}
+
+class _EstadoVazio extends StatelessWidget {
+  const _EstadoVazio({required this.buscaAtiva, required this.filtroAtivo});
+
+  final bool buscaAtiva;
+  final bool filtroAtivo;
+
+  @override
+  Widget build(BuildContext context) {
+    final mensagem = buscaAtiva
+        ? 'Nenhum livro corresponde à busca. Tente outro título ou autor.'
+        : filtroAtivo
+        ? 'Nenhum livro nesta situação. Escolha outro filtro.'
+        : 'O acervo ainda está vazio. Cadastre o primeiro livro.';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 28),
+      child: Column(
+        children: [
+          const _PrateleiraVazia(),
+          const SizedBox(height: 16),
+          Text(mensagem, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+  }
+}
+
+class _PrateleiraVazia extends StatelessWidget {
+  const _PrateleiraVazia();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CapaLivro(titulo: 'A', largura: 36, altura: 52),
+        SizedBox(width: 8),
+        CapaLivro(titulo: 'B', largura: 36, altura: 60),
+        SizedBox(width: 8),
+        CapaLivro(titulo: 'C', largura: 36, altura: 48),
+      ],
     );
   }
 }
